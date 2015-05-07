@@ -1,0 +1,25 @@
+application: fantasypremierleaguestats
+version: 1
+runtime: go
+api_version: go1
+
+handlers:
+- url: /google198f15972d7d87d0.html
+  static_files: googleVerification/google198f15972d7d87d0.html
+  upload: googleVerification/google198f15972d7d87d0.html
+
+- url: /images
+  static_dir: images
+  
+- url: /js
+  static_dir: js
+  
+- url: /css
+  static_dir: css
+
+- url: /.*
+  script: _go_app
+ 
+- url: /cronfpldata
+  script: _go_app
+  login: admin

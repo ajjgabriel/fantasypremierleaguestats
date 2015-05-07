@@ -1,0 +1,6 @@
+indexes:
+- kind: FplData
+  ancestor: yes
+  properties:
+  - name: Id
+    direction: desc
