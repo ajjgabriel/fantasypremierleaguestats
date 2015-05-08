@@ -3,21 +3,26 @@
     <title>Fantasy Premier League Stats</title>
   </head>
   <body>
-	<form action="/retrieveFplDataByTeam" method="post">
-	 <select name="TeamName">
-    {{range .}}
-     
-	  <option value={{.TeamName}}>{{.TeamName}}</option>
-	
-    {{end}}
-	</select>
-	
-      <div><input type="submit" value="Team Name"></div>
-    </form>
-
+	<form action="/retrieveFplDataByTrend" method="post">
+	<input type="submit" value="Fpl Trends">
+	</form>
+	<table style="width:100%">
+	<td>Team Name</td>
+    <td>Current Fixture</td>		
+    <td>Next Fixture</td>
+	{{range .}}
+  <tr>
+    <td> {{.TeamName}}</td>
+    <td>{{.Current_fixture}}</td>		
+    <td>{{.Next_fixture}}</td>
+  </tr>
+  {{end}}
+</table>
+    
+<!--
 	<form action="/retrievefpldata" method="post">
       <div><textarea name="First_name" rows="3" cols="60"></textarea></div>
       <div><input type="submit" value="First Name"></div>
-    </form>
+    </form>-->
   </body>
 </html>

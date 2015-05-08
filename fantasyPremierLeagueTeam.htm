@@ -1,41 +1,20 @@
 <html>
   <head>
-	<script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1.1','packages':['bar']}]}"></script>
-	<script>
-		var transferIn = [
-          ['Name', 'Transfer In']
-		  {{range .FplPlayerData}}
-          ,[{{.Web_name}}, {{.Transfers_in_event}}]
-		  {{end}}
-          
-        ];
-		
-		var transferOut = [
-          ['Name', 'Transfer Out']
-		  {{range .FplPlayerData}}
-          ,[{{.Web_name}}, {{.Transfers_out_event}}]
-		  {{end}}
-          
-        ];
-		
-	</script>
-     <script type="text/javascript" language="javascript" src="js/googleChart/googleChart.js"></script>
     <title>Fantasy Premier League Stats</title>
   </head>
   <body>
 	<form action="/retrieveFplDataByTeam" method="post">
-	 <select name="TeamName">
-    {{range .FplTeamData}}
+	
+    {{range .}}
      
-	  <option value={{.TeamName}}>{{.TeamName}}</option>
+	  {{.}}sasd
 	
     {{end}}
-	</select>
+
 	
       <div><input type="submit" value="Team Name"></div>
     </form>
-	<div id="top_x_div" style="width: 900px; height: 500px;"></div>
-	<div id="top_transferOut_div" style="width: 900px; height: 500px;"></div>
+
 	<form action="/retrievefpldata" method="post">
       <div><textarea name="First_name" rows="3" cols="60"></textarea></div>
       <div><input type="submit" value="First Name"></div>

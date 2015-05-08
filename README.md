@@ -1,7 +1,7 @@
-XiaoMi Availability
+Fantasy Premier League Stats
 ================
 
-Want to get the latest xiaomi and not sure if its sold out ?
+Get Statistics To Improve On Your Winning Chances!
+May The Best Team Win!
 
-
-http://xiaomiavail.appspot.com
+http://fantasypremierleaguestats.appspot.com

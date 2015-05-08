@@ -13,12 +13,21 @@ import (
 )
 
 type FplData struct {
-	FplTeamData		[]FplTeamData
-	FplPlayerData	[]FplPlayerData
+	FplTeamData							[]FplTeamData
+	FplPlayerTransferInData				[]FplPlayerData
+	FplPlayerTransferOutData			[]FplPlayerData
 }
 
 type FplTeamData struct {
-	TeamName							string		`json:"team_name"`
+	TeamName							string		
+	Current_fixture						string
+	Next_fixture						string
+}
+
+type Event_explain struct {
+	Name							string		
+	NumberOfMins					int
+	NumberOfHalf					int
 }
 
 
@@ -26,7 +35,7 @@ type FplPlayerData struct {
 		Id								int			`json:"id"`
 		Photo							string		`json:"photo"`
 		Web_name						string		`json:"web_name"`
-		//Event_explain					[][]interface{} `json:"event_explain"`
+		//Event_explain					[]Event_explain			`json:"event_explain"`
 		//Fixture_history					[][]interface{} `json:"fixture_history"`
 		//Season_history					[][]interface{} `json:"season_history"`
 		//Fixtures						[][]interface{} `json:"fixtures"`
@@ -93,7 +102,8 @@ func init() {
 	http.HandleFunc("/cronfpldata", cronfpldata)
 	http.HandleFunc("/retrievefpldata", retrievefpldata)
 	http.HandleFunc("/retrieveFplDataByTeam", retrieveFplDataByTeam)
-    http.HandleFunc("/", retrieveFplDataByTeam)
+	http.HandleFunc("/retrieveFplDataByTrend", retrieveFplDataByTrend)
+    http.HandleFunc("/", root)
 	http.Handle("/css/", http.FileServer(http.Dir(".")))
 	http.Handle("/js/", http.FileServer(http.Dir(".")))
 }
@@ -103,9 +113,9 @@ func root(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
        
         
-		q := datastore.NewQuery("FplPlayerData").Project("TeamName").Distinct()
+		q := datastore.NewQuery("FplTeamData").Order("TeamName")
 
-        fplDatas := make([]FplPlayerData, 0, 20)
+        fplDatas := make([]FplTeamData, 0, 20)
         if _, err := q.GetAll(c, &fplDatas); err != nil {
                 http.Error(w, err.Error(), http.StatusInternalServerError)
                 return
@@ -117,28 +127,49 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 func retrieveFplDataByTeam(w http.ResponseWriter, r *http.Request) {
         c := appengine.NewContext(r)
-       //log.Println("TeamName =" +  r.FormValue("TeamName"))
-		//q := datastore.NewQuery("FplPlayerData").Filter("First_name =", r.FormValue("First_name")).Limit(10)
-		q := datastore.NewQuery("FplPlayerData").Order("-Transfers_in_event").Limit(30)
-        fplPlayerDatas := make([]FplPlayerData, 0, 30)
-        if _, err := q.GetAll(c, &fplPlayerDatas); err != nil {
-                http.Error(w, err.Error(), http.StatusInternalServerError)
-                return
-        }
-		
-		q = datastore.NewQuery("FplTeamData").Limit(30)
-        fplTeamDatas := make([]FplTeamData, 0, 30)
+       
+		q := datastore.NewQuery("FplPlayerData").Limit(20)
+        fplTeamDatas := make([]FplPlayerData, 0, 20)
         if _, err := q.GetAll(c, &fplTeamDatas); err != nil {
                 http.Error(w, err.Error(), http.StatusInternalServerError)
                 return
         }
+        
+		fplStatsTeamForm.ExecuteTemplate(w, "fantasyPremierLeagueTeam.htm", fplTeamDatas)
 		
+		
+}
+
+func retrieveFplDataByTrend(w http.ResponseWriter, r *http.Request) {
+        c := appengine.NewContext(r)
+		q := datastore.NewQuery("FplPlayerData").Order("-Transfers_in_event").Limit(10)
+        fplPlayerTransferInDatas := make([]FplPlayerData, 0, 10)
+        if _, err := q.GetAll(c, &fplPlayerTransferInDatas); err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }
+		
+		q = datastore.NewQuery("FplPlayerData").Order("-Transfers_out_event").Limit(10)
+        fplPlayerTransferOutDatas := make([]FplPlayerData, 0, 10)
+        if _, err := q.GetAll(c, &fplPlayerTransferOutDatas); err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }
+		/*
+		q = datastore.NewQuery("FplTeamData").Project("TeamName").Distinct().Limit(20)
+        fplTeamDatas := make([]FplTeamData, 0, 20)
+        if _, err := q.GetAll(c, &fplTeamDatas); err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }
+		*/
 		fplData := &FplData{
-		  FplTeamData: fplTeamDatas,
-		  FplPlayerData: fplPlayerDatas,
+		  //FplTeamData: fplTeamDatas,
+		  FplPlayerTransferInData: fplPlayerTransferInDatas,
+		  FplPlayerTransferOutData: fplPlayerTransferOutDatas,
 		}
 		
-		fplStatsTeamForm.ExecuteTemplate(w, "fantasyPremierLeagueTeam.htm", fplData)
+		fplStatsTrendForm.ExecuteTemplate(w, "fantasyPremierLeagueTrend.htm", fplData)
 		
 }
 
@@ -225,7 +256,7 @@ func insertCronFplPlayerData(w http.ResponseWriter, c appengine.Context){
 
 func insertCronFplTeamData(w http.ResponseWriter, c appengine.Context){
 	
-	q := datastore.NewQuery("FplPlayerData").Project("TeamName").Distinct()
+	q := datastore.NewQuery("FplPlayerData").Project("TeamName", "Current_fixture", "Next_fixture").Distinct()
 
     fplPlayerDatas := make([]FplPlayerData, 0, 20)
     if _, err := q.GetAll(c, &fplPlayerDatas); err != nil {
@@ -238,6 +269,9 @@ func insertCronFplTeamData(w http.ResponseWriter, c appengine.Context){
 	
 	for _,element := range fplPlayerDatas {
 		res.TeamName = element.TeamName
+		res.Current_fixture = element.Current_fixture
+		res.Next_fixture = element.Next_fixture
+		
 		key := datastore.NewIncompleteKey(c, "FplTeamData", fplTeamDataKey(c))
 		if _, err := datastore.Put(c, key, res); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -266,3 +300,4 @@ func cronfpldata(w http.ResponseWriter, r *http.Request) {
 
 var fplStatsForm = template.Must(template.New("").ParseFiles("fantasyPremierLeague.htm"))
 var fplStatsTeamForm = template.Must(template.New("").ParseFiles("fantasyPremierLeagueTeam.htm"))
+var fplStatsTrendForm = template.Must(template.New("").ParseFiles("fantasyPremierLeagueTrend.htm"))
