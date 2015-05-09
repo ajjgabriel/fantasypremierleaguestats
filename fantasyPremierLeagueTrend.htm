@@ -1,9 +1,14 @@
 <html>
   <head>
 	<script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1.1','packages':['bar']}]}"></script>
-	<style>
-		div.center { margin: 0 auto; }
-	</style>
+	<meta name="viewport"
+          content="width = device-width, initial-scale = 1.0, minimum-scale = 1.0, maximum-scale = 1.0, user-scalable = no"/>
+	<link rel="stylesheet" type="text/css" href="css/img.css">
+	<link rel="stylesheet" type="text/css" href="css/divCenter.css">
+
+	<script type="text/javascript" src="js/functions/hover.js"></script>
+    <title>Fantasy Premier League Stats</title>
+	
 	<script>
 		var transferIn = [
           ['Name', 'Transfer In']
@@ -23,9 +28,12 @@
 		
 	</script>
      <script type="text/javascript" language="javascript" src="js/googleChart/googleChart.js"></script>
-    <title>Fantasy Premier League Stats</title>
+  
   </head>
   <body>
+	<img border="0" src="images/logo.png" alt="FPl Stats" onclick="location.href = '/';"/>
+	<br>
+	<img border="0" src="images/fplTrend.png" alt="FPl Stats" onmouseover="hoverTrend(this);" onmouseout="unhoverTrend(this);" onclick="location.href = '/retrieveFplDataByTrend';"/>
 	
 	<div id="top_transferIn_div" style="width: 900px; height: 500px;" class="center"></div>
 	<div id="top_transferOut_div" style="width: 900px; height: 500px;" class="center"></div>

@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"strconv"
+	"sync"
+	"runtime"
 )
 
 type FplData struct {
@@ -142,27 +144,25 @@ func retrieveFplDataByTeam(w http.ResponseWriter, r *http.Request) {
 
 func retrieveFplDataByTrend(w http.ResponseWriter, r *http.Request) {
         c := appengine.NewContext(r)
-		q := datastore.NewQuery("FplPlayerData").Order("-Transfers_in_event").Limit(10)
-        fplPlayerTransferInDatas := make([]FplPlayerData, 0, 10)
-        if _, err := q.GetAll(c, &fplPlayerTransferInDatas); err != nil {
-                http.Error(w, err.Error(), http.StatusInternalServerError)
-                return
-        }
+		runtime.GOMAXPROCS(2)
+		var wg sync.WaitGroup
+		wg.Add(2)
+        
+		fplPlayerTransferInDatas := make([]FplPlayerData, 0, 10)
+		fplPlayerTransferOutDatas := make([]FplPlayerData, 0, 10)
 		
-		q = datastore.NewQuery("FplPlayerData").Order("-Transfers_out_event").Limit(10)
-        fplPlayerTransferOutDatas := make([]FplPlayerData, 0, 10)
-        if _, err := q.GetAll(c, &fplPlayerTransferOutDatas); err != nil {
-                http.Error(w, err.Error(), http.StatusInternalServerError)
-                return
-        }
-		/*
-		q = datastore.NewQuery("FplTeamData").Project("TeamName").Distinct().Limit(20)
-        fplTeamDatas := make([]FplTeamData, 0, 20)
-        if _, err := q.GetAll(c, &fplTeamDatas); err != nil {
-                http.Error(w, err.Error(), http.StatusInternalServerError)
-                return
-        }
-		*/
+		   
+		go func(){
+			defer wg.Done()
+			fplPlayerTransferInDatas = queryFplDataOrderBy(w,c, "-Transfers_in_event")
+		}()
+		
+		go func(){
+			defer wg.Done()
+			fplPlayerTransferOutDatas = queryFplDataOrderBy(w,c, "-Transfers_out_event")
+		}()
+		wg.Wait()
+		
 		fplData := &FplData{
 		  //FplTeamData: fplTeamDatas,
 		  FplPlayerTransferInData: fplPlayerTransferInDatas,
@@ -171,6 +171,18 @@ func retrieveFplDataByTrend(w http.ResponseWriter, r *http.Request) {
 		
 		fplStatsTrendForm.ExecuteTemplate(w, "fantasyPremierLeagueTrend.htm", fplData)
 		
+}
+
+
+func queryFplDataOrderBy(w http.ResponseWriter, c appengine.Context, orderBy string) []FplPlayerData {
+	
+	fplPlayerData := make([]FplPlayerData, 0, 10)
+	q := datastore.NewQuery("FplPlayerData").Order(orderBy).Limit(10)
+    if _, err := q.GetAll(c, &fplPlayerData); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+        return nil
+    }
+	return fplPlayerData
 }
 
 func retrievefpldata(w http.ResponseWriter, r *http.Request) {
@@ -196,7 +208,9 @@ func fplTeamDataKey(c appengine.Context) *datastore.Key {
         return datastore.NewKey(c, "FplTeamData", "FplTeamData", 0, nil)
 }
 
-func clearCronFplPlayerData(c appengine.Context){
+func clearCronFplPlayerData(c appengine.Context, wg sync.WaitGroup){
+	//wait for cron job to be completed
+	defer wg.Done()
 	
 	fplDatas := make([]FplPlayerData, 0, 1000)
     q, err := datastore.NewQuery("FplPlayerData").Ancestor(fplDataKey(c)).Limit(1000).GetAll(c, &fplDatas)
@@ -208,7 +222,9 @@ func clearCronFplPlayerData(c appengine.Context){
 
 }
 
-func clearCronFplTeamData(c appengine.Context){
+func clearCronFplTeamData(c appengine.Context, wg sync.WaitGroup){
+	//wait for cron job to be completed
+	defer wg.Done()
 	
 	fplTeamData := make([]FplTeamData, 0, 1000)
     q, err := datastore.NewQuery("FplTeamData").Ancestor(fplTeamDataKey(c)).Limit(1000).GetAll(c, &fplTeamData)
@@ -221,9 +237,29 @@ func clearCronFplTeamData(c appengine.Context){
 }
 
 func insertCronFplPlayerData(w http.ResponseWriter, c appengine.Context){
-	client := urlfetch.Client(c)
+	runtime.GOMAXPROCS(8)
+	var wg sync.WaitGroup
+    wg.Add(8)
 	
-	for i := 1; i < 658; i++ {
+	client := urlfetch.Client(c)
+	defer wg.Done()
+	for i := 1; i < 658; i=i+8 {
+		go insertCronFplPlayerDataIndividually(w, c, client, i)
+		go insertCronFplPlayerDataIndividually(w, c, client, i + 1)
+		go insertCronFplPlayerDataIndividually(w, c, client, i + 2)
+		go insertCronFplPlayerDataIndividually(w, c, client, i + 3)
+		go insertCronFplPlayerDataIndividually(w, c, client, i + 4)
+		go insertCronFplPlayerDataIndividually(w, c, client, i + 5)
+		go insertCronFplPlayerDataIndividually(w, c, client, i + 6)
+		go insertCronFplPlayerDataIndividually(w, c, client, i + 7)
+	}
+	
+	wg.Wait()
+	log.Println("Finish Running insertCronFplPlayerData")
+}
+
+func insertCronFplPlayerDataIndividually(w http.ResponseWriter, c appengine.Context, client *http.Client, i int){
+		
 		stringNumber := strconv.Itoa(i)
 		str := "http://fantasy.premierleague.com/web/api/elements/" + stringNumber
 		resp, err := client.Get(str)
@@ -251,7 +287,6 @@ func insertCronFplPlayerData(w http.ResponseWriter, c appengine.Context){
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-	}
 }
 
 func insertCronFplTeamData(w http.ResponseWriter, c appengine.Context){
@@ -284,12 +319,16 @@ func insertCronFplTeamData(w http.ResponseWriter, c appengine.Context){
 
 func cronfpldata(w http.ResponseWriter, r *http.Request) {
 	
+	runtime.GOMAXPROCS(2)
+	var wg sync.WaitGroup
+    wg.Add(2)
 	
 	c := appengine.NewContext(r)
 	
-	clearCronFplPlayerData(c)
+	go clearCronFplPlayerData(c, wg)
+	go clearCronFplTeamData(c, wg)
+	wg.Wait()
 	insertCronFplPlayerData(w, c)
-	clearCronFplTeamData(c)
 	insertCronFplTeamData(w, c)
 	
 

@@ -1,28 +1,29 @@
 <html>
   <head>
+	<meta name="viewport"
+          content="width = device-width, initial-scale = 1.0, minimum-scale = 1.0, maximum-scale = 1.0, user-scalable = no"/>
+	<link rel="stylesheet" type="text/css" href="css/tables.css">
+	<link rel="stylesheet" type="text/css" href="css/img.css">
+
+	<script type="text/javascript" src="js/functions/hover.js"></script>
     <title>Fantasy Premier League Stats</title>
   </head>
   <body>
-	<form action="/retrieveFplDataByTrend" method="post">
-	<input type="submit" value="Fpl Trends">
-	</form>
-	<table style="width:100%">
-	<td>Team Name</td>
-    <td>Current Fixture</td>		
-    <td>Next Fixture</td>
-	{{range .}}
-  <tr>
-    <td> {{.TeamName}}</td>
-    <td>{{.Current_fixture}}</td>		
-    <td>{{.Next_fixture}}</td>
-  </tr>
-  {{end}}
-</table>
+	<img border="0" src="images/logo.png" alt="FPl Stats" onclick="location.href = '/';"/>
+	<br>
+	<img border="0" src="images/fplTrend.png" alt="FPl Stats" onmouseover="hoverTrend(this);" onmouseout="unhoverTrend(this);" onclick="location.href = '/retrieveFplDataByTrend';"/>
+	<table class="rwd-table" >
+		<td>Team Name</td>
+		<td>Current Fixture</td>		
+		<td>Next Fixture</td>
+		{{range .}}
+		  <tr>
+			<td data-th="Team Name"> {{.TeamName}}</td>
+			<td data-th="Current Fixture">{{.Current_fixture}}</td>		
+			<td data-th="Next Fixture">{{.Next_fixture}}</td>
+		  </tr>
+		{{end}}
+	</table>
     
-<!--
-	<form action="/retrievefpldata" method="post">
-      <div><textarea name="First_name" rows="3" cols="60"></textarea></div>
-      <div><input type="submit" value="First Name"></div>
-    </form>-->
   </body>
 </html>

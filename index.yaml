@@ -1,13 +1,1 @@
 indexes:
-- kind: FplPlayerData
-  ancestor: yes
-  properties:
-  - name: Transfers_in_event
-    direction: desc
-  - name: Transfers_out_event
-    direction: desc
-- kind: FplTeamData
-  ancestor: yes
-  properties:
-  - name: TeamName
-    direction: desc
