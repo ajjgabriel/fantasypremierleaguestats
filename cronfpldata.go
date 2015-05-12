@@ -103,6 +103,7 @@ type FplPlayerData struct {
 func init() {
 
 	http.HandleFunc("/cronfpldata", cronfpldata)
+	http.HandleFunc("/cronfplTeamdata", cronfplTeamdata)
 	http.HandleFunc("/retrievefpldata", retrievefpldata)
 	http.HandleFunc("/retrieveFplDataByTeam", retrieveFplDataByTeam)
 	http.HandleFunc("/retrieveFplDataByTrend", retrieveFplDataByTrend)
@@ -238,7 +239,7 @@ func insertCronFplPlayerData(w http.ResponseWriter, c context.Context){
 	
 	client := urlfetch.Client(c)
 	
-	for i := 1; i < 700; i=i+8 {
+	for i := 1; i < 700; i=i+1 {
 		go func (i int) {
            insertCronFplPlayerDataIndividually(w, c, client, i)
         } (i);
@@ -255,13 +256,15 @@ func insertCronFplPlayerDataIndividually(w http.ResponseWriter, c context.Contex
 		resp, err := client.Get(str)
 		
 		if err != nil {
-			log.Fatal(err)
+			//log.Fatal(err)
+			return
 		}
 		
 		robots, err := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			log.Fatal(err)
+			//log.Fatal(err)
+			return
 		}
 		
 		res := &FplPlayerData{}
@@ -274,7 +277,7 @@ func insertCronFplPlayerDataIndividually(w http.ResponseWriter, c context.Contex
 		
 		key := datastore.NewIncompleteKey(c, "FplPlayerData", fplDataKey(c))
 		if _, err := datastore.Put(c, key, res); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			//http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 }
@@ -309,29 +312,20 @@ func insertCronFplTeamData(w http.ResponseWriter, c context.Context){
 
 func cronfpldata(w http.ResponseWriter, r *http.Request) {
 	
-	runtime.GOMAXPROCS(2)
-	var wg sync.WaitGroup
-    wg.Add(2)
-	
 	c := appengine.NewContext(r)
 	
-	go func() {
-		defer wg.Done()
-		clearCronFplPlayerData(c)
-	}()
-	
-	go func() {
-		defer wg.Done()
-		clearCronFplTeamData(c)
-	}()
-	
-	
-	wg.Wait()
-	
+	clearCronFplPlayerData(c)
 	insertCronFplPlayerData(w, c)
-	insertCronFplTeamData(w, c)
 	
 
+}
+
+func cronfplTeamdata(w http.ResponseWriter, r *http.Request) {
+	
+	c := appengine.NewContext(r)
+	clearCronFplTeamData(c)
+	insertCronFplTeamData(w, c)
+	
 }
 
 
