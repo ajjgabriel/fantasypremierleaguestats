@@ -15,13 +15,13 @@
 	<img border="0" src="images/injury.png" alt="FPl Injury" onmouseover="hoverInjury(this);" onmouseout="unhoverInjury(this);" onclick="location.href = '/retrieveFplDataByAvailability';"/>
 	<table class="rwd-table" >
 		<td>Team Name</td>
-		<td>Current Fixture</td>		
-		<td>Next Fixture</td>
+		<td>Player Name</td>		
+		<td>Injury/Suspension News</td>
 		{{range .}}
 		  <tr>
 			<td data-th="Team Name"> {{.TeamName}}</td>
-			<td data-th="Current Fixture">{{.Current_fixture}}</td>		
-			<td data-th="Next Fixture">{{.Next_fixture}}</td>
+			<td data-th="Player Name">{{.Web_name}}</td>		
+			<td data-th="Injury/Suspension News">{{.News}}</td>
 		  </tr>
 		{{end}}
 	</table>

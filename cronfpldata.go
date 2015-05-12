@@ -13,6 +13,7 @@ import (
 	"sync"
 	"runtime"
 	"golang.org/x/net/context"
+	"sort"
 )
 
 type FplData struct {
@@ -100,6 +101,33 @@ type FplPlayerData struct {
 		Team							int			`json:"team"`
 }
 
+type By func(p1, p2 *FplPlayerData) bool
+
+type fplPlayerDataSorter struct {
+	fplPlayerData []FplPlayerData
+	by      func(p1, p2 *FplPlayerData) bool 
+}
+
+func (by By) Sort(fplPlayerData []FplPlayerData) {
+	fs := &fplPlayerDataSorter{
+		fplPlayerData: fplPlayerData,
+		by:      by, 
+	}
+	sort.Sort(fs)
+}
+
+func (s *fplPlayerDataSorter) Len() int {
+	return len(s.fplPlayerData)
+}
+
+func (s *fplPlayerDataSorter) Swap(i, j int) {
+	s.fplPlayerData[i], s.fplPlayerData[j] = s.fplPlayerData[j], s.fplPlayerData[i]
+}
+
+func (s *fplPlayerDataSorter) Less(i, j int) bool {
+	return s.by(&s.fplPlayerData[i], &s.fplPlayerData[j])
+}
+
 func init() {
 
 	http.HandleFunc("/cronfpldata", cronfpldata)
@@ -107,6 +135,7 @@ func init() {
 	http.HandleFunc("/retrievefpldata", retrievefpldata)
 	http.HandleFunc("/retrieveFplDataByTeam", retrieveFplDataByTeam)
 	http.HandleFunc("/retrieveFplDataByTrend", retrieveFplDataByTrend)
+	http.HandleFunc("/retrieveFplDataByAvailability", retrieveFplDataByAvailability)
     http.HandleFunc("/", root)
 	http.Handle("/css/", http.FileServer(http.Dir(".")))
 	http.Handle("/js/", http.FileServer(http.Dir(".")))
@@ -141,6 +170,27 @@ func retrieveFplDataByTeam(w http.ResponseWriter, r *http.Request) {
         
 		fplStatsTeamForm.ExecuteTemplate(w, "fantasyPremierLeagueTeam.htm", fplTeamDatas)
 		
+}
+
+func retrieveFplDataByAvailability(w http.ResponseWriter, r *http.Request) {
+        c := appengine.NewContext(r)
+       
+		q := datastore.NewQuery("FplPlayerData").Filter("News >", "")
+
+        fplDatas := make([]FplPlayerData, 0, 600)
+        if _, err := q.GetAll(c, &fplDatas); err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }
+		
+		
+		TeamName := func(p1, p2 *FplPlayerData) bool {
+			return p1.TeamName < p2.TeamName
+		}
+		
+        By(TeamName).Sort(fplDatas)
+		
+		fplStatsAvailabilityForm.ExecuteTemplate(w, "fantasyPremierLeagueAvailability.htm", fplDatas)
 		
 }
 
@@ -256,15 +306,13 @@ func insertCronFplPlayerDataIndividually(w http.ResponseWriter, c context.Contex
 		resp, err := client.Get(str)
 		
 		if err != nil {
-			//log.Fatal(err)
-			return
+			log.Fatal(err)
 		}
 		
 		robots, err := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			//log.Fatal(err)
-			return
+			log.Fatal(err)
 		}
 		
 		res := &FplPlayerData{}
@@ -277,7 +325,7 @@ func insertCronFplPlayerDataIndividually(w http.ResponseWriter, c context.Contex
 		
 		key := datastore.NewIncompleteKey(c, "FplPlayerData", fplDataKey(c))
 		if _, err := datastore.Put(c, key, res); err != nil {
-			//http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 }
@@ -332,3 +380,4 @@ func cronfplTeamdata(w http.ResponseWriter, r *http.Request) {
 var fplStatsForm = template.Must(template.New("").ParseFiles("fantasyPremierLeague.htm"))
 var fplStatsTeamForm = template.Must(template.New("").ParseFiles("fantasyPremierLeagueTeam.htm"))
 var fplStatsTrendForm = template.Must(template.New("").ParseFiles("fantasyPremierLeagueTrend.htm"))
+var fplStatsAvailabilityForm = template.Must(template.New("").ParseFiles("fantasyPremierLeagueAvailability.htm"))
