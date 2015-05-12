@@ -234,52 +234,19 @@ func clearCronFplTeamData(c context.Context){
 }
 
 func insertCronFplPlayerData(w http.ResponseWriter, c context.Context){
-	runtime.GOMAXPROCS(8)
-	var wg sync.WaitGroup
-    wg.Add(8)
+	
 	
 	client := urlfetch.Client(c)
 	
 	for i := 1; i < 700; i=i+8 {
-		go func(){ 
-			defer wg.Done()
-			insertCronFplPlayerDataIndividually(w, c, client, i)
-		}()
-		go func(){ 
-			defer wg.Done()
-			insertCronFplPlayerDataIndividually(w, c, client, i + 1)
-		}()
-		go func(){ 
-			defer wg.Done()
-			insertCronFplPlayerDataIndividually(w, c, client, i + 2)
-		}()
-		go func(){ 
-			defer wg.Done()
-			insertCronFplPlayerDataIndividually(w, c, client, i + 3)
-		}()
-		go func(){ 
-			defer wg.Done()
-			insertCronFplPlayerDataIndividually(w, c, client, i + 4)
-		}()
-		go func(){ 
-			defer wg.Done()
-			insertCronFplPlayerDataIndividually(w, c, client, i + 5)
-		}()
-		go func(){ 
-			defer wg.Done()
-			insertCronFplPlayerDataIndividually(w, c, client, i + 6)
-		}()
-		go func(){ 
-			defer wg.Done()
-			insertCronFplPlayerDataIndividually(w, c, client, i + 7)
-		}()
-		wg.Wait()
+		go func (i int) {
+           insertCronFplPlayerDataIndividually(w, c, client, i)
+        } (i);
+			
 	}
-	wg.Wait()
 	
 	log.Println("Finish Running insertCronFplPlayerData")
 }
-
 
 func insertCronFplPlayerDataIndividually(w http.ResponseWriter, c context.Context, client *http.Client, i int){
 		
@@ -357,14 +324,15 @@ func cronfpldata(w http.ResponseWriter, r *http.Request) {
 		defer wg.Done()
 		clearCronFplTeamData(c)
 	}()
+	
+	
 	wg.Wait()
 	
 	insertCronFplPlayerData(w, c)
 	insertCronFplTeamData(w, c)
+	
 
 }
-
-
 
 
 var fplStatsForm = template.Must(template.New("").ParseFiles("fantasyPremierLeague.htm"))

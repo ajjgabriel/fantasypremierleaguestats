@@ -1,4 +1,4 @@
 cron:
-- description: daily summary job
+- description: Retrieve FPL Data
   url: /cronfpldata
-  schedule: every day 17:00
+  schedule: every day 16:45
