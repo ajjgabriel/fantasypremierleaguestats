@@ -12,3 +12,10 @@ function hoverInjury(element) {
 	function unhoverInjury(element) {
 		element.setAttribute('src', 'images/injury.png');
 	}
+
+	function hoverSchedule(element) {
+    element.setAttribute('src', 'images/ScheduleHover.png');
+	}
+	function unhoverSchedule(element) {
+		element.setAttribute('src', 'images/schedule.png');
+	}

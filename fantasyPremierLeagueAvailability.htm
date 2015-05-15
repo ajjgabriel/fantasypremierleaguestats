@@ -2,8 +2,15 @@
   <head>
 	<meta name="viewport"
           content="width = device-width, initial-scale = 1.0, minimum-scale = 1.0, maximum-scale = 1.0, user-scalable = no"/>
-	<link rel="stylesheet" type="text/css" href="css/tables.css">
+	<script type="text/javascript" language="javascript" src="js/jQuery/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" language="javascript" src="js/table/jquery.dynatable.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/table/jquery.dynatable.css">
+    <link rel="stylesheet" media="all" href="css/bootstrap/bootstrap-2.3.2.min.css" />
+    <link href='//fonts.googleapis.com/css?family=Nunito:300' rel='stylesheet' type='text/css'>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 	<link rel="stylesheet" type="text/css" href="css/img.css">
+	<link rel="stylesheet" type="text/css" href="css/tables.css">
+
 
 	<script type="text/javascript" src="js/functions/hover.js"></script>
     <title>Fantasy Premier League Stats</title>
@@ -11,20 +18,30 @@
   <body>
 	<img border="0" src="images/logo.png" alt="FPl Stats" onclick="location.href = '/';"/>
 	<br>
+	<img border="0" src="images/Schedule.png" alt="FPl Schedule" onmouseover="hoverSchedule(this);" onmouseout="unhoverSchedule(this);" onclick="location.href = '/';"/>
 	<img border="0" src="images/fplTrend.png" alt="FPl Stats" onmouseover="hoverTrend(this);" onmouseout="unhoverTrend(this);" onclick="location.href = '/retrieveFplDataByTrend';"/>
 	<img border="0" src="images/injury.png" alt="FPl Injury" onmouseover="hoverInjury(this);" onmouseout="unhoverInjury(this);" onclick="location.href = '/retrieveFplDataByAvailability';"/>
-	<table class="rwd-table" >
-		<td>Team Name</td>
-		<td>Player Name</td>		
-		<td>Injury/Suspension News</td>
-		{{range .}}
-		  <tr>
-			<td data-th="Team Name"> {{.TeamName}}</td>
-			<td data-th="Player Name">{{.Web_name}}</td>		
-			<td data-th="Injury/Suspension News">{{.News}}</td>
-		  </tr>
-		{{end}}
+	
+	<br><br>
+	<table class="rwd-table" id="my-table" style="width:100%; text-align:left;">
+		<thead>
+			<tr>
+				<th>Team Name</th>
+				<th>Player Name</th>		
+				<th>Injury/Suspension News</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{range .}}
+			  <tr>
+				<td> {{.TeamName}}</td>
+				<td>{{.Web_name}}</td>		
+				<td>{{.News}}</td>
+			  </tr>
+			{{end}}
+		</tbody>
 	</table>
+	<script>$('#my-table').dynatable(); </script>
     
   </body>
 </html>

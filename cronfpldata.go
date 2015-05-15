@@ -13,7 +13,6 @@ import (
 	"sync"
 	"runtime"
 	"golang.org/x/net/context"
-	"sort"
 )
 
 type FplData struct {
@@ -101,33 +100,6 @@ type FplPlayerData struct {
 		Team							int			`json:"team"`
 }
 
-type By func(p1, p2 *FplPlayerData) bool
-
-type fplPlayerDataSorter struct {
-	fplPlayerData []FplPlayerData
-	by      func(p1, p2 *FplPlayerData) bool 
-}
-
-func (by By) Sort(fplPlayerData []FplPlayerData) {
-	fs := &fplPlayerDataSorter{
-		fplPlayerData: fplPlayerData,
-		by:      by, 
-	}
-	sort.Sort(fs)
-}
-
-func (s *fplPlayerDataSorter) Len() int {
-	return len(s.fplPlayerData)
-}
-
-func (s *fplPlayerDataSorter) Swap(i, j int) {
-	s.fplPlayerData[i], s.fplPlayerData[j] = s.fplPlayerData[j], s.fplPlayerData[i]
-}
-
-func (s *fplPlayerDataSorter) Less(i, j int) bool {
-	return s.by(&s.fplPlayerData[i], &s.fplPlayerData[j])
-}
-
 func init() {
 
 	http.HandleFunc("/cronfpldata", cronfpldata)
@@ -182,13 +154,6 @@ func retrieveFplDataByAvailability(w http.ResponseWriter, r *http.Request) {
                 http.Error(w, err.Error(), http.StatusInternalServerError)
                 return
         }
-		
-		
-		TeamName := func(p1, p2 *FplPlayerData) bool {
-			return p1.TeamName < p2.TeamName
-		}
-		
-        By(TeamName).Sort(fplDatas)
 		
 		fplStatsAvailabilityForm.ExecuteTemplate(w, "fantasyPremierLeagueAvailability.htm", fplDatas)
 		
@@ -290,10 +255,7 @@ func insertCronFplPlayerData(w http.ResponseWriter, c context.Context){
 	client := urlfetch.Client(c)
 	
 	for i := 1; i < 700; i=i+1 {
-		go func (i int) {
-           insertCronFplPlayerDataIndividually(w, c, client, i)
-        } (i);
-			
+		insertCronFplPlayerDataIndividually(w, c, client, i)
 	}
 	
 	log.Println("Finish Running insertCronFplPlayerData")
