@@ -1,1 +1,6 @@
 indexes:
+- kind: FplPlayerData
+  properties:
+  - name: TeamName
+  - name: Current_fixture
+  - name: Next_fixture

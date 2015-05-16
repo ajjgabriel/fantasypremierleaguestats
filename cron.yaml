@@ -3,8 +3,4 @@ cron:
   url: /cronfpldata
   schedule: every day 01:00
   
-- description: Retrieve FPL Team Data
-  url: /cronfplTeamdata
-  schedule: every day 01:30
-  
   
