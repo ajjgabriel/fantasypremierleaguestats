@@ -3,13 +3,20 @@
 	<meta name="viewport"
           content="width = device-width, initial-scale = 1.0, minimum-scale = 1.0, maximum-scale = 1.0, user-scalable = no"/>
 	<script type="text/javascript" language="javascript" src="js/jQuery/jquery-1.11.1.min.js"></script>
-	<script type="text/javascript" language="javascript" src="js/table/jquery.dynatable.js"></script>
-	<link rel="stylesheet" type="text/css" href="css/table/jquery.dynatable.css">
+
     <link rel="stylesheet" media="all" href="css/bootstrap/bootstrap.min.css" />
+	<link rel="stylesheet" media="all" href="css/bootstrap/font-awesome.min.css" />
 	<script type="text/javascript" language="javascript" src="js/bootstrap/bootstrap.min.js"></script>
+	<script type="text/javascript" language="javascript" src="js/bootstrap/jquery.sortelements.js"></script>
+	<script type="text/javascript" language="javascript" src="js/bootstrap/jquery.bdt.min.js"></script>
+	<link rel="stylesheet" media="all" href="css/font/font.css" />
 	<link rel="stylesheet" type="text/css" href="css/img.css">
 	<link rel="stylesheet" type="text/css" href="css/tables.css">
-
+	<script>
+		 $(document).ready( function () {
+        $('#fplStats-table').bdt();
+    });
+	</script>
     <title>Fantasy Premier League Stats</title>
   </head>
   <body>
@@ -38,25 +45,32 @@
   </div><!-- /.container-fluid -->
 </nav>
   
-	<br><br>
-	<table class="rwd-table" id="my-table" style="width:100%; text-align:left;">
-		<thead>
-			<tr>
-				<th>Team Name</th>
-				<th>Current Fixture</th>		
-				<th>Next Fixture</th>
-			</tr>
-		</thead>
-		<tbody>
-			{{range .}}
-			  <tr>
-				<td> {{.TeamName}}</td>
-				<td>{{.Current_fixture}}</td>		
-				<td>{{.Next_fixture}}</td>
-			  </tr>
-			{{end}}
-		</tbody>
-	</table>
-	<script>$('#my-table').dynatable(); </script>
+	<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h3>EPL Fixtures</h3>
+
+            <table class="table table-hover" id="fplStats-table" >
+                <thead>
+                <tr>
+                    <th>Team Name</th>
+					<th>Current Fixture</th>		
+					<th>Next Fixture</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{range .}}
+				  <tr>
+					<td> {{.TeamName}}</td>
+					<td>{{.Current_fixture}}</td>		
+					<td>{{.Next_fixture}}</td>
+				  </tr>
+				{{end}}
+                
+                </tbody>
+            </table>
+        </div>
+    </div>
+
   </body>
 </html>
