@@ -3,17 +3,13 @@
 	<meta name="viewport"
           content="width = device-width, initial-scale = 1.0, minimum-scale = 1.0, maximum-scale = 1.0, user-scalable = no"/>
 	<script type="text/javascript" language="javascript" src="js/jQuery/jquery-1.11.1.min.js"></script>
-	<link rel="stylesheet" media="all" href="css/bootstrap/bootstrap.min.css" />
-	<link rel="stylesheet" media="all" href="css/font/font.css" />
+
+    <link rel="stylesheet" media="all" href="css/bootstrap/bootstrap.min.css" />
 	<link rel="stylesheet" media="all" href="css/bootstrap/font-awesome.min.css" />
 	<script type="text/javascript" language="javascript" src="js/bootstrap/bootstrap.min.js"></script>
 	<script type="text/javascript" language="javascript" src="js/bootstrap/jquery.sortelements.js"></script>
 	<script type="text/javascript" language="javascript" src="js/bootstrap/jquery.bdt.min.js"></script>
-	<script>
-		 $(document).ready( function () {
-        $('#fplStats-table').bdt();
-    });
-	</script>
+	<link rel="stylesheet" media="all" href="css/font/font.css" />
 	<link rel="stylesheet" type="text/css" href="css/img.css">
 	<link rel="stylesheet" type="text/css" href="css/tables.css">
 	<link rel="icon" 
@@ -22,6 +18,7 @@
     <title>Fantasy Premier League Stats</title>
   </head>
   <body>
+	
 	<nav class="navbar navbar-default">
 	  <div class="container-fluid">
 		<!-- Brand and toggle get grouped for better mobile display -->
@@ -38,42 +35,64 @@
 		<!-- Collect the nav links, forms, and other content for toggling -->
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 		  <ul class="nav navbar-nav">
-			<li><a href="/">Fixture <span class="sr-only">(current)</span></a></li>
+			<li><a href="/">Fixture<span class="sr-only">(current)</span></a></li>
 			<li><a href="retrieveFplDataByTrend">Trends</a></li>
-			<li class="active"><a href="retrieveFplDataByAvailability">Status</a></li>
-			<li><a href="retrieveFplDataByTopStats">Statistics</a></li>
+			<li><a href="retrieveFplDataByAvailability">Status</a></li>
+			<li class="active"><a href="retrieveFplDataByTopStats">Statistics</a></li>
 		  </ul>
 		  
 		</div><!-- /.navbar-collapse -->
 	  </div><!-- /.container-fluid -->
 	</nav>
-	
+  
 	<div class="container">
-    <div class="row">
-        <div class="col-md-8">
-            <h3>EPL Injury/Suspension</h3>
-
-            <table class="table table-hover" id="fplStats-table" >
-                <thead>
-                <tr>
-                    <th>Team Name</th>
-					<th>Player Name</th>		
-					<th>Injury/Suspension News</th>
-                </tr>
-                </thead>
-                <tbody>
-                {{range .}}
+		<h3>Top Goal Scorer</h3>
+			<table class="table table-striped" >
+				<thead>
+				<tr>
+					<th>Team</th>
+					<th>Name</th>		
+					<th>Goals</th>
+					</tr>
+				</thead>
+				<tbody>
+				{{range .FplTopGS}}
 				  <tr>
 					<td> {{.TeamName}}</td>
 					<td>{{.Web_name}}</td>		
-					<td>{{.News}}</td>
+					<td>{{.Goals_scored}}</td>
 				  </tr>
-				{{end}}
-                
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
+				  {{end}}
+				
+				</tbody>
+			</table>
+	</div>
+	
+	<div class="container">
+		<h3>Top Assists</h3>
+			<table class="table table-striped" >
+				<thead>
+				<tr>
+					<th>Team</th>
+					<th>Name</th>		
+					<th>Assists</th>
+					</tr>
+				</thead>
+				<tbody>
+				{{range .FplTopA}}
+				  <tr>
+					<td> {{.TeamName}}</td>
+					<td>{{.Web_name}}</td>		
+					<td>{{.Assists}}</td>
+				  </tr>
+				  {{end}}
+				
+				</tbody>
+			</table>
+	</div>
+	
+
+	
+	
   </body>
 </html>

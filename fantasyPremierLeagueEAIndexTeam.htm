@@ -1,0 +1,35 @@
+<html>
+  <head>
+	<meta name="viewport"
+          content="width = device-width, initial-scale = 1.0, minimum-scale = 1.0, maximum-scale = 1.0, user-scalable = no"/>
+	<script type="text/javascript" language="javascript" src="js/jQuery/jquery-1.11.1.min.js"></script>
+
+    <link rel="stylesheet" media="all" href="css/bootstrap/bootstrap.min.css" />
+	<link rel="stylesheet" media="all" href="css/bootstrap/font-awesome.min.css" />
+	<script type="text/javascript" language="javascript" src="js/bootstrap/bootstrap.min.js"></script>
+	<script type="text/javascript" language="javascript" src="js/bootstrap/jquery.sortelements.js"></script>
+	<script type="text/javascript" language="javascript" src="js/bootstrap/jquery.bdt.min.js"></script>
+	<link rel="stylesheet" media="all" href="css/font/font.css" />
+	<link rel="stylesheet" type="text/css" href="css/img.css">
+	<link rel="stylesheet" type="text/css" href="css/tables.css">
+	<script>
+		 $(document).ready( function () {
+        $('#fplStats-table').bdt();
+    });
+	</script>
+    <title>Fantasy Premier League Stats</title>
+  </head>
+  <body>
+	
+    {{range .FplTeam}}
+     
+	  {{.FplGk}}
+	  {{.FplDef}}
+	  {{.FplMid}}
+	  {{.FplStr}}
+	
+    {{end}}
+
+	
+  </body>
+</html>
