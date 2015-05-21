@@ -27,10 +27,14 @@ type FplTopData struct {
 }
 
 type FplTeam struct {
-	FplGk								[]FplPlayerData
-	FplDef								[]FplPlayerData
-	FplMid								[]FplPlayerData
-	FplStr								[]FplPlayerData
+	FplEAGk									[]FplPlayerData
+	FplEADef								[]FplPlayerData
+	FplEAMid								[]FplPlayerData
+	FplEAStr								[]FplPlayerData
+	FplPointsGk									[]FplPlayerData
+	FplPointsDef								[]FplPlayerData
+	FplPointsMid								[]FplPlayerData
+	FplPointsStr								[]FplPlayerData
 }
 
 type FplTeamData struct {
@@ -116,11 +120,10 @@ func init() {
 
 	http.HandleFunc("/cronfpldata", cronfpldata)
 	http.HandleFunc("/retrievefpldata", retrievefpldata)
-	http.HandleFunc("/retrieveFplDataByTeam", retrieveFplDataByTeam)
 	http.HandleFunc("/retrieveFplDataByTrend", retrieveFplDataByTrend)
 	http.HandleFunc("/retrieveFplDataByAvailability", retrieveFplDataByAvailability)
 	http.HandleFunc("/retrieveFplDataByTopStats", retrieveFplDataByTopStats)
-	http.HandleFunc("/retrieveFplTopTeamByEAIndex", retrieveFplTopTeamByEAIndex)
+	http.HandleFunc("/retrieveFplTopTeam", retrieveFplTopTeam)
     http.HandleFunc("/", root)
 	http.Handle("/css/", http.FileServer(http.Dir(".")))
 	http.Handle("/js/", http.FileServer(http.Dir(".")))
@@ -141,20 +144,6 @@ func root(w http.ResponseWriter, r *http.Request) {
 		
         
 		fplStatsForm.ExecuteTemplate(w, "fantasyPremierLeague.htm", fplDatas)
-}
-
-func retrieveFplDataByTeam(w http.ResponseWriter, r *http.Request) {
-        c := appengine.NewContext(r)
-       
-		q := datastore.NewQuery("FplPlayerData").Limit(20)
-        fplTeamDatas := make([]FplPlayerData, 0, 20)
-        if _, err := q.GetAll(c, &fplTeamDatas); err != nil {
-                http.Error(w, err.Error(), http.StatusInternalServerError)
-                return
-        }
-        
-		fplStatsTeamForm.ExecuteTemplate(w, "fantasyPremierLeagueTeam.htm", fplTeamDatas)
-		
 }
 
 func retrieveFplDataByAvailability(w http.ResponseWriter, r *http.Request) {
@@ -234,48 +223,79 @@ func retrieveFplDataByTopStats(w http.ResponseWriter, r *http.Request) {
 		
 }
 
-func retrieveFplTopTeamByEAIndex(w http.ResponseWriter, r *http.Request) {
+func retrieveFplTopTeam(w http.ResponseWriter, r *http.Request) {
         c := appengine.NewContext(r)
        
-		runtime.GOMAXPROCS(4)
+		runtime.GOMAXPROCS(8)
 		var wg sync.WaitGroup
-		wg.Add(4)
+		wg.Add(8)
         
-		fplTopGk := make([]FplPlayerData, 0, 2)
-		fplTopDef := make([]FplPlayerData, 0, 5)
-		fplTopMid := make([]FplPlayerData, 0, 5)
-		fplTopStr := make([]FplPlayerData, 0, 3)
+		fplTopEAGk := make([]FplPlayerData, 0, 2)
+		fplTopEADef := make([]FplPlayerData, 0, 5)
+		fplTopEAMid := make([]FplPlayerData, 0, 5)
+		fplTopEAStr := make([]FplPlayerData, 0, 3)
+		
+		fplTopPointsGk := make([]FplPlayerData, 0, 2)
+		fplTopPointsDef := make([]FplPlayerData, 0, 5)
+		fplTopPointsMid := make([]FplPlayerData, 0, 5)
+		fplTopPointsStr := make([]FplPlayerData, 0, 3)
 		
 		   
 		go func(){
 			defer wg.Done()
-			fplTopGk = queryFplFilterOrderByLimit(w,c, "Goalkeeper" ,"-Ea_index", 2)
+			fplTopEAGk = queryFplFilterOrderByLimit(w,c, "TypeName =", "Goalkeeper" ,"-Ea_index", 2)
 		}()
 		
 		go func(){
 			defer wg.Done()
-			fplTopDef = queryFplFilterOrderByLimit(w,c, "Defender" ,"-Ea_index", 5)
+			fplTopEADef = queryFplFilterOrderByLimit(w,c, "TypeName =", "Defender" ,"-Ea_index", 5)
 		}()
 		
 		go func(){
 			defer wg.Done()
-			fplTopMid = queryFplFilterOrderByLimit(w,c, "Midfielder" ,"-Ea_index", 5)
+			fplTopEAMid = queryFplFilterOrderByLimit(w,c, "TypeName =", "Midfielder" ,"-Ea_index", 5)
 		}()
 		
 		go func(){
 			defer wg.Done()
-			fplTopStr = queryFplFilterOrderByLimit(w,c, "Forward" ,"-Ea_index", 3)
+			fplTopEAStr = queryFplFilterOrderByLimit(w,c, "TypeName =", "Forward" ,"-Ea_index", 3)
 		}()
+		
+		//Total_points
+		go func(){
+			defer wg.Done()
+			fplTopPointsGk = queryFplFilterOrderByLimit(w,c, "TypeName =", "Goalkeeper" ,"-Total_points", 2)
+		}()
+		
+		go func(){
+			defer wg.Done()
+			fplTopPointsDef = queryFplFilterOrderByLimit(w,c, "TypeName =", "Defender" ,"-Total_points", 5)
+		}()
+		
+		go func(){
+			defer wg.Done()
+			fplTopPointsMid = queryFplFilterOrderByLimit(w,c, "TypeName =", "Midfielder" ,"-Total_points", 5)
+		}()
+		
+		go func(){
+			defer wg.Done()
+			fplTopPointsStr = queryFplFilterOrderByLimit(w,c, "TypeName =", "Forward" ,"-Total_points", 3)
+		}()
+		
 		wg.Wait()
 		
 		fplTeam := &FplTeam{
-		  FplGk:  fplTopGk,
-		  FplDef: fplTopDef,
-		  FplMid: fplTopMid,
-		  FplStr: fplTopStr,
+		  FplEAGk:  fplTopEAGk,
+		  FplEADef: fplTopEADef,
+		  FplEAMid: fplTopEAMid,
+		  FplEAStr: fplTopEAStr,
+		  FplPointsGk:  fplTopPointsGk,
+		  FplPointsDef: fplTopPointsDef,
+		  FplPointsMid: fplTopPointsMid,
+		  FplPointsStr: fplTopPointsStr,
 		}
-        
-		fplStatsEAIndexTeamForm.ExecuteTemplate(w, "fantasyPremierLeagueEAIndexTeam.htm", fplTeam)
+		
+		fplStatsTopTeamForm.ExecuteTemplate(w, "fantasyPremierLeagueTopTeam.htm", fplTeam)
 		
 }
 
@@ -291,10 +311,10 @@ func queryFplDataOrderBy(w http.ResponseWriter, c context.Context, orderBy strin
 	return fplPlayerData
 }
 
-func queryFplFilterOrderByLimit(w http.ResponseWriter, c context.Context, filter string, orderBy string, limit int) []FplPlayerData {
+func queryFplFilterOrderByLimit(w http.ResponseWriter, c context.Context, filterType string, filter string, orderBy string, limit int) []FplPlayerData {
 	
 	fplPlayerData := make([]FplPlayerData, 0, limit)
-	q := datastore.NewQuery("FplPlayerData").Order(orderBy).Limit(limit)
+	q := datastore.NewQuery("FplPlayerData").Filter(filterType, filter).Order(orderBy).Limit(limit)
     if _, err := q.GetAll(c, &fplPlayerData); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
         return nil
@@ -388,7 +408,6 @@ func cronfpldata(w http.ResponseWriter, r *http.Request) {
 
 var fplStatsForm = template.Must(template.New("").ParseFiles("fantasyPremierLeague.htm"))
 var fplStatsTopForm = template.Must(template.New("").ParseFiles("fantasyPremierLeagueTop.htm"))
-var fplStatsTeamForm = template.Must(template.New("").ParseFiles("fantasyPremierLeagueTeam.htm"))
-var fplStatsEAIndexTeamForm = template.Must(template.New("").ParseFiles("fantasyPremierLeagueEAIndexTeam.htm"))
+var fplStatsTopTeamForm = template.Must(template.New("").ParseFiles("fantasyPremierLeagueTopTeam.htm"))
 var fplStatsTrendForm = template.Must(template.New("").ParseFiles("fantasyPremierLeagueTrend.htm"))
 var fplStatsAvailabilityForm = template.Must(template.New("").ParseFiles("fantasyPremierLeagueAvailability.htm"))

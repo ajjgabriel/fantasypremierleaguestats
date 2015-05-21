@@ -7,19 +7,12 @@
     <link rel="stylesheet" media="all" href="css/bootstrap/bootstrap.min.css" />
 	<link rel="stylesheet" media="all" href="css/bootstrap/font-awesome.min.css" />
 	<script type="text/javascript" language="javascript" src="js/bootstrap/bootstrap.min.js"></script>
-	<script type="text/javascript" language="javascript" src="js/bootstrap/jquery.sortelements.js"></script>
-	<script type="text/javascript" language="javascript" src="js/bootstrap/jquery.bdt.min.js"></script>
 	<link rel="stylesheet" media="all" href="css/font/font.css" />
 	<link rel="stylesheet" type="text/css" href="css/img.css">
 	<link rel="stylesheet" type="text/css" href="css/tables.css">
 	<link rel="icon" 
       type="image/icon" 
       href="/images/favicon.ico">
-	<script>
-		 $(document).ready( function () {
-        $('#fplStats-table').bdt();
-    });
-	</script>
     <title>Fantasy Premier League Stats</title>
   </head>
   <body>
@@ -40,9 +33,10 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li class="active"><a href="/">Fixture <span class="sr-only">(current)</span></a></li>
+		<li><a href="retrieveFplTopTeam">Top Teams</a></li>
         <li><a href="retrieveFplDataByTrend">Trends</a></li>
-        <li><a href="retrieveFplDataByAvailability">Status</a></li>
 		<li><a href="retrieveFplDataByTopStats">Statistics</a></li>
+        <li><a href="retrieveFplDataByAvailability">Status</a></li>
       </ul>
       
     </div><!-- /.navbar-collapse -->
@@ -54,7 +48,7 @@
         <div class="col-md-8">
             <h3>EPL Fixtures</h3>
 
-            <table class="table table-hover" id="fplStats-table" >
+            <table class="table table-striped">
                 <thead>
                 <tr>
                     <th>Team Name</th>

@@ -3,17 +3,11 @@
 	<meta name="viewport"
           content="width = device-width, initial-scale = 1.0, minimum-scale = 1.0, maximum-scale = 1.0, user-scalable = no"/>
 	<script type="text/javascript" language="javascript" src="js/jQuery/jquery-1.11.1.min.js"></script>
-	<link rel="stylesheet" media="all" href="css/bootstrap/bootstrap.min.css" />
-	<link rel="stylesheet" media="all" href="css/font/font.css" />
+
+    <link rel="stylesheet" media="all" href="css/bootstrap/bootstrap.min.css" />
 	<link rel="stylesheet" media="all" href="css/bootstrap/font-awesome.min.css" />
 	<script type="text/javascript" language="javascript" src="js/bootstrap/bootstrap.min.js"></script>
-	<script type="text/javascript" language="javascript" src="js/bootstrap/jquery.sortelements.js"></script>
-	<script type="text/javascript" language="javascript" src="js/bootstrap/jquery.bdt.min.js"></script>
-	<script>
-		 $(document).ready( function () {
-        $('#fplStats-table').bdt();
-    });
-	</script>
+	<link rel="stylesheet" media="all" href="css/font/font.css" />
 	<link rel="stylesheet" type="text/css" href="css/img.css">
 	<link rel="stylesheet" type="text/css" href="css/tables.css">
 	<link rel="icon" 
@@ -22,7 +16,7 @@
     <title>Fantasy Premier League Stats</title>
   </head>
   <body>
-	<nav class="navbar navbar-default">
+  <nav class="navbar navbar-default">
 	  <div class="container-fluid">
 		<!-- Brand and toggle get grouped for better mobile display -->
 		<div class="navbar-header">
@@ -39,42 +33,93 @@
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 		  <ul class="nav navbar-nav">
 			<li><a href="/">Fixture <span class="sr-only">(current)</span></a></li>
-			<li><a href="retrieveFplTopTeam">Top Teams</a></li>
+			<li class="active"><a href="retrieveFplTopTeam">Top Teams</a></li>
 			<li><a href="retrieveFplDataByTrend">Trends</a></li>
+			<li><a href="retrieveFplDataByAvailability">Status</a></li>
 			<li><a href="retrieveFplDataByTopStats">Statistics</a></li>
-			<li class="active"><a href="retrieveFplDataByAvailability">Status</a></li>
 		  </ul>
 		  
 		</div><!-- /.navbar-collapse -->
 	  </div><!-- /.container-fluid -->
 	</nav>
+	<div class="container">
+		<h3>Best EA Index Team</h3>
+			<table class="table" >
+				<thead>
+				<tr>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>		
+					<th></th>
+					</tr>
+				</thead>
+				<tbody>
+				<tr>
+				{{range .FplEAGk}}
+					<td>{{.Web_name}}</td>		
+				{{end}}
+				 </tr>
+				  <tr>
+				{{range .FplEADef}}
+					<td>{{.Web_name}}</td>	
+				{{end}}	
+				  </tr>
+				  <tr>
+				{{range .FplEAMid}}
+					<td>{{.Web_name}}</td>
+				{{end}}		
+				  </tr>
+				  <tr>
+				{{range .FplEAStr}}
+					<td>{{.Web_name}}</td>
+				{{end}}		
+				  </tr>
+				
+				</tbody>
+			</table>
+	</div>
 	
 	<div class="container">
-    <div class="row">
-        <div class="col-md-8">
-            <h3>EPL Injury/Suspension</h3>
-
-            <table class="table table-hover" id="fplStats-table" >
-                <thead>
-                <tr>
-                    <th>Team Name</th>
-					<th>Player Name</th>		
-					<th>Injury/Suspension News</th>
-                </tr>
-                </thead>
-                <tbody>
-                {{range .}}
-				  <tr>
-					<td> {{.TeamName}}</td>
-					<td>{{.Web_name}}</td>		
-					<td>{{.News}}</td>
-				  </tr>
+		<h3>Best Top Scoring Team</h3>
+			<table class="table" >
+				<thead>
+				<tr>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>		
+					<th></th>
+					</tr>
+				</thead>
+				<tbody>
+				<tr>
+				{{range .FplPointsGk}}
+					<td >
+						{{.Web_name}}
+					</td>		
 				{{end}}
-                
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
+				 </tr>
+				  <tr>
+				{{range .FplPointsDef}}
+					<td>{{.Web_name}}</td>	
+				{{end}}	
+				  </tr>
+				  <tr>
+				{{range .FplPointsMid}}
+					<td>{{.Web_name}}</td>
+				{{end}}		
+				  </tr>
+				  
+				  <tr>
+				{{range .FplPointsStr}}
+					<td>{{.Web_name}}</td>
+				{{end}}		
+				  </tr>
+				
+				</tbody>
+			</table>
+	</div>
+		
   </body>
 </html>
