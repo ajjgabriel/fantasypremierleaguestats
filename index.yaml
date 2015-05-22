@@ -4,3 +4,15 @@ indexes:
   - name: TeamName
   - name: Current_fixture
   - name: Next_fixture
+  
+- kind: FplPlayerData
+  properties:
+  - name: TypeName
+  - name: Ea_index
+    direction: desc
+  
+- kind: FplPlayerData
+  properties:
+  - name: TypeName
+  - name: Total_points
+    direction: desc
